@@ -29,7 +29,7 @@ def cifar10() -> None:
         # Adam_C1=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=False)),
         # AMSGrad_C2=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=True)),
     )
-    e = ExperimentCIFAR10(max_epoch=2, batch_size=128, model_name='ResNet44')
+    e = ExperimentCIFAR10(max_epoch=200, batch_size=128, model_name='ResNet44')
     e.execute(optimizers, './result/cifar10')
 
 

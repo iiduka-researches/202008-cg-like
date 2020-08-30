@@ -21,7 +21,7 @@ Result = Dict[str, Sequence[float]]
 
 
 class Experiment(metaclass=ABCMeta):
-    def __init__(self, batch_size: int, max_epoch: int, model_name=None, data_dir='./dataset/data/') -> None:
+    def __init__(self, batch_size: int, max_epoch: int, model_name='model', data_dir='./dataset/data/') -> None:
         self.model_name = model_name
         self.max_epoch = max_epoch
         self.batch_size = batch_size

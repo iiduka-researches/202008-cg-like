@@ -2,10 +2,11 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 import os
 import random
+from tempfile import TemporaryDirectory
 from time import time
 from typing import Any, Dict, Optional, Sequence, Tuple
 import numpy as np
-from pandas import DataFrame
+from pandas import concat, DataFrame, read_csv
 import torch
 from torch.nn import Module
 from torch.utils.data import DataLoader
@@ -57,11 +58,13 @@ class Experiment(metaclass=ABCMeta):
             validate_result = self.epoch_validate(net, test_loader=test_loader)
             result = arrange_result_as_dict(t=time() - start, train=train_result, validate=validate_result)
             results.append(result)
-            notify(str(result))
+            if epoch % 10 == 0:
+                notify(str(result))
         return net, concat_dicts(results)
 
     @notify_error
     def execute(self, optimizers: OptimDict, result_dir: str) -> None:
+        model_dir = os.path.join(result_dir, self.model_name)
         train_loader, test_loader = self.prepare_data_loader(batch_size=self.batch_size, data_dir=self.data_dir)
         for name, (optimizer, optimizer_kw) in optimizers.items():
             fix_seed()
@@ -70,7 +73,8 @@ class Experiment(metaclass=ABCMeta):
             _, result = self.train(net=net, optimizer=optimizer(net.parameters(), **optimizer_kw),
                                    train_loader=train_loader, test_loader=test_loader)
             result_to_csv(result, name=name, optimizer_kw=optimizer_kw,
-                          result_dir=os.path.join(result_dir, self.model_name))
+                          result_dir=model_dir)
+
 
 
 def select_device() -> str:
@@ -102,19 +106,6 @@ def fix_seed(seed=0) -> None:
     torch.backends.cudnn.benchmark = False
 
 
-def result_format(name: str, extension='csv') -> str:
-    ts = datetime.now().strftime('%Y%m%d_%H%M%S')
-    return f'{name}_{ts}.{extension}'
-
-
-def send_csv(path: str, body: str, to=None) -> None:
-    transmitter = GMailTransmitter()
-    subject = f'[実験結果] {os.path.basename(path)}'
-    if to is None:
-        to = transmitter.sender_account
-    transmitter.send(subject=subject, to=to, body=body, file_path=path, extension=os.path.splitext(path)[-1])
-
-
 def result_to_csv(r: Result, name: str, optimizer_kw: ParamDict, result_dir: str) -> None:
     df = DataFrame(r)
     df['optimizer'] = name
@@ -126,5 +117,26 @@ def result_to_csv(r: Result, name: str, optimizer_kw: ParamDict, result_dir: str
     path = os.path.join(result_dir, result_format(name))
     df.to_csv(path, encoding='utf-8')
 
+
+def result_format(name: str, extension='csv') -> str:
+    ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+    return f'{name}_{ts}.{extension}'
+
+
+def send_csv(path: str, body: str, to=None) -> None:
     if os.path.isfile(ACCOUNT_JSON):
-        send_csv(path, body=f'{name}\n{str(optimizer_kw)}\n')
+        transmitter = GMailTransmitter()
+        subject = f'[実験結果] {os.path.basename(path)}'
+        if to is None:
+            to = transmitter.sender_account
+        transmitter.send(subject=subject, to=to, body=body, file_path=path, extension=os.path.splitext(path)[-1])
+
+
+def send_collected_csv(result_dir: str) -> None:
+    paths = (os.path.join(result_dir, f) for f in os.listdir(result_dir) if f[-4:] == '.csv')
+    df = concat([read_csv(path, encoding='utf-8') for path in paths])
+    with TemporaryDirectory() as tmp_dir:
+        path = os.path.join(tmp_dir, 'result.csv')
+        df.to_csv(path, index=False, encoding='utf-8')
+        send_csv(path, body='')
+

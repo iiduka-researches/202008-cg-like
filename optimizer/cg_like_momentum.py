@@ -1,6 +1,6 @@
 import torch
 from .optimizer import Optimizer, required
-from .gamma import gamma_fn_dict
+from .gamma import lr_fn_dict
 
 
 class CGLikeMomentum(Optimizer):
@@ -8,25 +8,19 @@ class CGLikeMomentum(Optimizer):
     Args:
         params (iterable): iterable of parameters to optimize or dicts defining
             parameter groups
-        lr (float): learning rate
-        momentum (float, optional): momentum factor (default: 0)
         weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
         dampening (float, optional): dampening for momentum (default: 0)
         nesterov (bool, optional): enables Nesterov momentum (default: False)
     """
 
-    def __init__(self, params, lr=required, gamma_type=required, momentum=0, dampening=0, weight_decay=0,
-                 nesterov=False) -> None:
-        if lr is not required and lr < 0.0:
-            raise ValueError("Invalid learning rate: {}".format(lr))
-        if momentum < 0.0:
-            raise ValueError("Invalid momentum value: {}".format(momentum))
+    def __init__(self, params, alpha_type=required, beta_type=required, gamma_type=required,
+                 dampening=0, weight_decay=0, nesterov=False) -> None:
         if weight_decay < 0.0:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
 
-        defaults = dict(lr=lr, gamma_type=gamma_type, momentum=momentum, dampening=dampening,
-                        weight_decay=weight_decay, nesterov=nesterov)
-        if nesterov and (momentum <= 0 or dampening != 0):
+        defaults = dict(alpha_type=alpha_type, beta_type=beta_type, gamma_type=gamma_type,
+                        dampening=dampening, weight_decay=weight_decay, nesterov=nesterov)
+        if nesterov and dampening != 0:
             raise ValueError("Nesterov momentum requires a momentum and zero dampening")
         super(CGLikeMomentum, self).__init__(params, defaults)
 
@@ -50,10 +44,11 @@ class CGLikeMomentum(Optimizer):
 
         for group in self.param_groups:
             weight_decay = group['weight_decay']
-            momentum = group['momentum']
             dampening = group['dampening']
             nesterov = group['nesterov']
-            gamma_fn = gamma_fn_dict[group['gamma_type']]
+            alpha_fn = lr_fn_dict[group['alpha_type']]
+            beta_fn = lr_fn_dict[group['beta_type']]
+            gamma_fn = lr_fn_dict[group['gamma_type']]
             group['n'] += 1
 
             for p in group['params']:
@@ -62,24 +57,25 @@ class CGLikeMomentum(Optimizer):
                 d_p = p.grad
                 if weight_decay != 0:
                     d_p = d_p.add(p, alpha=weight_decay)
-                if momentum != 0:
-                    param_state = self.state[p]
-                    if 'd_buffer' in param_state:
-                        d_buf = param_state['d_buffer']
-                        gamma = gamma_fn(group['n'])
-                        d_p.add_(d_buf, alpha=-gamma)
-                    param_state['d_buffer'] = torch.clone(d_p).detach()
 
-                    if 'momentum_buffer' not in param_state:
-                        buf = param_state['momentum_buffer'] = torch.clone(d_p).detach()
-                    else:
-                        buf = param_state['momentum_buffer']
-                        buf.mul_(momentum).add_(d_p, alpha=1 - dampening)
-                    if nesterov:
-                        d_p = d_p.add(buf, alpha=momentum)
-                    else:
-                        d_p = buf
+                param_state = self.state[p]
+                if 'd_buffer' in param_state:
+                    d_buf = param_state['d_buffer']
+                    gamma = gamma_fn(group['n'])
+                    d_p.add_(d_buf, alpha=-gamma)
+                param_state['d_buffer'] = torch.clone(d_p).detach()
 
-                p.add_(d_p, alpha=-group['lr'])
+                beta = beta_fn(group['n'])
+                if 'momentum_buffer' not in param_state:
+                    buf = param_state['momentum_buffer'] = torch.clone(d_p).detach()
+                else:
+                    buf = param_state['momentum_buffer']
+                    buf.mul_(beta).add_(d_p, alpha=1 - dampening)
+                if nesterov:
+                    d_p = d_p.add(buf, alpha=beta)
+                else:
+                    d_p = buf
+                alpha = alpha_fn(group['n'])
+                p.add_(d_p, alpha=-alpha)
 
         return loss

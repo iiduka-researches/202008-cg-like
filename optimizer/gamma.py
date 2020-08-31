@@ -14,7 +14,7 @@ def diminish2(n: int) -> float:
     return 1 / n
 
 
-gamma_fn_dict = dict(
+lr_fn_dict = dict(
     C1=lambda n: 1e-1,
     C2=lambda n: 1e-2,
     C3=lambda n: 1e-3,

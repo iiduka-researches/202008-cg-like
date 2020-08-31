@@ -28,7 +28,6 @@ class CGLikeMomentum(Optimizer):
         super(CGLikeMomentum, self).__setstate__(state)
         for group in self.param_groups:
             group.setdefault('nesterov', False)
-            group.setdefault('n', 0)
 
     @torch.no_grad()
     def step(self, closure=None):
@@ -49,7 +48,6 @@ class CGLikeMomentum(Optimizer):
             alpha_fn = lr_fn_dict[group['alpha_type']]
             beta_fn = lr_fn_dict[group['beta_type']]
             gamma_fn = lr_fn_dict[group['gamma_type']]
-            group['n'] += 1
 
             for p in group['params']:
                 if p.grad is None:
@@ -59,13 +57,18 @@ class CGLikeMomentum(Optimizer):
                     d_p = d_p.add(p, alpha=weight_decay)
 
                 param_state = self.state[p]
+                if 'n' in param_state:
+                    param_state['n'] += 1
+                else:
+                    param_state['n'] = 1
+                n = param_state['n']
                 if 'd_buffer' in param_state:
                     d_buf = param_state['d_buffer']
-                    gamma = gamma_fn(group['n'])
+                    gamma = gamma_fn(n)
                     d_p.add_(d_buf, alpha=-gamma)
                 param_state['d_buffer'] = torch.clone(d_p).detach()
 
-                beta = beta_fn(group['n'])
+                beta = beta_fn(n)
                 if 'momentum_buffer' not in param_state:
                     buf = param_state['momentum_buffer'] = torch.clone(d_p).detach()
                 else:
@@ -75,7 +78,7 @@ class CGLikeMomentum(Optimizer):
                     d_p = d_p.add(buf, alpha=beta)
                 else:
                     d_p = buf
-                alpha = alpha_fn(group['n'])
+                alpha = alpha_fn(n)
                 p.add_(d_p, alpha=-alpha)
 
         return loss

@@ -22,9 +22,9 @@ def cifar10() -> None:
         # Adam_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=False)),
         # AMSGrad_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=True)),
 
-        Momentum_C1=(SGD, dict(lr=1e-1, momentum=.1e-1)),
-        Momentum_C2=(SGD, dict(lr=1e-2, momentum=.1e-2)),
-        Momentum_C3=(SGD, dict(lr=1e-3, momentum=.1e-3)),
+        # Momentum_C1=(SGD, dict(lr=1e-1, momentum=.1e-1)),
+        # Momentum_C2=(SGD, dict(lr=1e-2, momentum=.1e-2)),
+        # Momentum_C3=(SGD, dict(lr=1e-3, momentum=.1e-3)),
         CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
         CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
         CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
@@ -35,7 +35,7 @@ def cifar10() -> None:
         # AMSGrad_C2=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=True)),
     )
     e = ExperimentCIFAR10(max_epoch=200, batch_size=128, model_name='ResNet44')
-    e.execute(optimizers, './result/cifar10')
+    e(optimizers, './result/cifar10')
 
 
 if __name__ == '__main__':

@@ -29,7 +29,7 @@ class Experiment(metaclass=ABCMeta):
         self.data_dir = data_dir
         self.device = select_device()
 
-    def __call__(self, *args, batch_size: int, **kwargs) -> None:
+    def __call__(self, *args, **kwargs) -> None:
         self.execute(*args, **kwargs)
 
     @abstractmethod
@@ -74,6 +74,7 @@ class Experiment(metaclass=ABCMeta):
                                    train_loader=train_loader, test_loader=test_loader)
             result_to_csv(result, name=name, optimizer_kw=optimizer_kw,
                           result_dir=model_dir)
+        send_collected_csv(model_dir)
 
 
 

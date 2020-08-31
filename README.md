@@ -20,6 +20,7 @@ pipenv run python main.py
     "token": "ACCESS_TOKEN"
   }
   ```
+  You can get an access token from https://notify-bot.line.me/
 
 - To send CSV by Gmail, you need to make or edit utils/gmail/account.json  
   ```json

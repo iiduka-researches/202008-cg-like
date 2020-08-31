@@ -2,16 +2,14 @@
 
 
 ## Usage
-To conduct experiments, please execute the following: 
-```shell script
-python main.py
-```
-
-or 
-
-```shell script
-pipenv run python main.py
-```
+- To conduct experiments, please execute the following: 
+  ```shell script
+  python main.py
+  ```
+  or 
+  ```shell script
+  pipenv run python main.py
+  ```
 
 - To observe experiment processes by LINE Notify, you need to make or edit utils/line/token.json
   ```json

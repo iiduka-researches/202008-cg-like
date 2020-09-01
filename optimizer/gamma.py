@@ -20,4 +20,5 @@ lr_fn_dict = dict(
     C3=lambda n: 1e-3,
     D1=diminish1,
     D2=diminish2,
+    No=lambda n: 0.
 )

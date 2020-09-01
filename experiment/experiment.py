@@ -22,7 +22,9 @@ Result = Dict[str, Sequence[float]]
 
 
 class Experiment(metaclass=ABCMeta):
-    def __init__(self, batch_size: int, max_epoch: int, model_name='model', data_dir='./dataset/data/') -> None:
+    def __init__(self, batch_size: int, max_epoch: int, dataset_name: str, model_name='model',
+                 data_dir='./dataset/data/') -> None:
+        self.dataset_name = dataset_name
         self.model_name = model_name
         self.max_epoch = max_epoch
         self.batch_size = batch_size
@@ -63,8 +65,8 @@ class Experiment(metaclass=ABCMeta):
         return net, concat_dicts(results)
 
     @notify_error
-    def execute(self, optimizers: OptimDict, result_dir: str) -> None:
-        model_dir = os.path.join(result_dir, self.model_name)
+    def execute(self, optimizers: OptimDict, result_dir='./result') -> None:
+        model_dir = os.path.join(result_dir, self.dataset_name, self.model_name)
         train_loader, test_loader = self.prepare_data_loader(batch_size=self.batch_size, data_dir=self.data_dir)
         for name, (optimizer, optimizer_kw) in optimizers.items():
             fix_seed()
@@ -140,4 +142,3 @@ def send_collected_csv(result_dir: str) -> None:
         path = os.path.join(tmp_dir, 'result.csv')
         df.to_csv(path, index=False, encoding='utf-8')
         send_csv(path, body='')
-

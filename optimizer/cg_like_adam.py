@@ -5,11 +5,7 @@ from .gamma import lr_fn_dict
 
 
 class CGLikeAdam(Optimizer):
-    r"""Implements Adam algorithm.
-
-    It has been proposed in `Adam: A Method for Stochastic Optimization`_.
-    The implementation of the L2 penalty follows changes proposed in
-    `Decoupled Weight Decay Regularization`_.
+    r"""Implements Conjugate Gradient-like Adam algorithm.
 
     Arguments:
         params (iterable): iterable of parameters to optimize or dicts defining
@@ -29,14 +25,14 @@ class CGLikeAdam(Optimizer):
         https://openreview.net/forum?id=ryQu7f-RZ
     """
 
-    def __init__(self, params, alpha_type=required, beta_types=required, gamma_type=required,
-                 eps=1e-8, weight_decay=0, amsgrad=False):
+    def __init__(self, params, alpha_type=required, beta_type=required, gamma_type=required,
+                 delta=.999, eps=1e-8, weight_decay=0, amsgrad=False):
         if not 0.0 <= eps:
             raise ValueError("Invalid epsilon value: {}".format(eps))
         if not 0.0 <= weight_decay:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
-        defaults = dict(alpha_type=alpha_type, beta_types=beta_types, gamma_type=gamma_type, eps=eps,
-                        weight_decay=weight_decay, amsgrad=amsgrad)
+        defaults = dict(alpha_type=alpha_type, beta_type=beta_type, gamma_type=gamma_type,
+                        delta=delta, eps=eps, weight_decay=weight_decay, amsgrad=amsgrad)
         super(CGLikeAdam, self).__init__(params, defaults)
 
     def __setstate__(self, state):
@@ -80,7 +76,7 @@ class CGLikeAdam(Optimizer):
                         state['max_exp_avg_sq'] = torch.zeros_like(p, memory_format=torch.preserve_format)
 
                 alpha_fn = lr_fn_dict[group['alpha_type']]
-                beta1_fn, beta2_fn = (lr_fn_dict[t] for t in group['beta_types'])
+                beta_fn = lr_fn_dict[group['beta_type']]
                 gamma_fn = lr_fn_dict[group['gamma_type']]
                 exp_avg, exp_avg_sq = state['exp_avg'], state['exp_avg_sq']
                 if amsgrad:
@@ -88,9 +84,10 @@ class CGLikeAdam(Optimizer):
                 else:
                     max_exp_avg_sq = None
                 state['step'] += 1
-                beta1, beta2 = beta1_fn(state['step']), beta2_fn(state['step'])
-                bias_correction1 = 1 - beta1 ** state['step']
-                bias_correction2 = 1 - beta2 ** state['step']
+                beta = beta_fn(state['step'])
+                delta = group['delta']
+                bias_correction1 = 1 - beta ** state['step']
+                bias_correction2 = 1 - delta ** state['step']
 
                 if group['weight_decay'] != 0:
                     grad = grad.add(p, alpha=group['weight_decay'])
@@ -104,8 +101,8 @@ class CGLikeAdam(Optimizer):
                 state['d_buffer'] = torch.clone(d_p).detach()
 
                 # Decay the first and second moment running average coefficient
-                exp_avg.mul_(beta1).add_(d_p, alpha=1 - beta1)
-                exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
+                exp_avg.mul_(beta).add_(d_p, alpha=1 - beta)
+                exp_avg_sq.mul_(delta).addcmul_(grad, grad, value=1 - delta)
                 if amsgrad:
                     # Maintains the maximum of all 2nd moment running avg. till now
                     torch.max(max_exp_avg_sq, exp_avg_sq, out=max_exp_avg_sq)

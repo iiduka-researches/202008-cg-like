@@ -7,16 +7,20 @@ from optimizer.cg_like_adam import CGLikeAdam
 
 def mnist() -> None:
     lr = 1e-3
-    optimizers = dict(
-        Momentum=(SGD, dict(lr=lr, momentum=.9)),
-    )
+    optimizers = prepare_optimizers(lr)
     e = ExperimentMNIST(dataset_name='mnist', max_epoch=1, batch_size=32)
-    e.execute(optimizers, './result/mnist')
+    e.execute(optimizers, './result')
 
 
 def cifar10() -> None:
     lr = 1e-3
-    optimizers = dict(
+    optimizers = prepare_optimizers(lr)
+    e = ExperimentCIFAR10(dataset_name='cifar10', max_epoch=200, batch_size=128, model_name='ResNet44')
+    e(optimizers)
+
+
+def prepare_optimizers(lr: float):
+    return dict(
         # Momentum_Exiting=(SGD, dict(lr=lr, momentum=.9)),
         # AdaGrad_Existing=(Adagrad, dict(lr=lr)),
         # RMSProp_Existing=(RMSprop, dict(lr=lr)),
@@ -53,8 +57,6 @@ def cifar10() -> None:
         CGLikeAMSGrad_D1=(CGLikeAdam, dict(alpha_type='D1', beta_type='D1', gamma_type='D1', amsgrad=True)),
         CGLikeAMSGrad_D2=(CGLikeAdam, dict(alpha_type='D1', beta_type='D1', gamma_type='D2', amsgrad=True)),
     )
-    e = ExperimentCIFAR10(dataset_name='cifar10', max_epoch=200, batch_size=128, model_name='ResNet44')
-    e(optimizers)
 
 
 if __name__ == '__main__':

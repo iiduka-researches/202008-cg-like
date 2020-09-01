@@ -76,6 +76,7 @@ class Experiment(metaclass=ABCMeta):
                                    train_loader=train_loader, test_loader=test_loader)
             result_to_csv(result, name=name, optimizer_kw=optimizer_kw,
                           result_dir=model_dir)
+            notify(f'[{name}] Done.')
         send_collected_csv(model_dir)
 
 

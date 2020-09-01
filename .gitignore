@@ -1,6 +1,10 @@
 .DS_Store
 result/*
 dataset/data/*
+utils/gmail/account.json
+utils/gmail/client_secret.json
+utils/gmail/token.pickle
+utils/line/token.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

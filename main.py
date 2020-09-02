@@ -8,21 +8,21 @@ from optimizer.cg_like_adam import CGLikeAdam
 
 def prepare_optimizers(lr: float):
     return dict(
-        # Momentum_Exiting=(SGD, dict(lr=lr, momentum=.9)),
-        # AdaGrad_Existing=(Adagrad, dict(lr=lr)),
-        # RMSProp_Existing=(RMSprop, dict(lr=lr)),
-        # Adam_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=False)),
-        # AMSGrad_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=True)),
+        Momentum_Exiting=(SGD, dict(lr=lr, momentum=.9)),
+        AdaGrad_Existing=(Adagrad, dict(lr=lr)),
+        RMSProp_Existing=(RMSprop, dict(lr=lr)),
+        Adam_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=False)),
+        AMSGrad_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=True)),
 
         # Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
         # Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
         # Momentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='No')),
-        Momentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='No')),
-        # CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
-        # CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
-        # CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
-        # CGLikeMomentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D1')),
-        # CGLikeMomentum_D2=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D2')),
+        # Momentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='No')),
+        CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
+        CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
+        CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
+        CGLikeMomentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D1')),
+        CGLikeMomentum_D2=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D2')),
 
         Adam_C1=(CGLikeAdam, dict(alpha_type='C1', beta_type='C1', gamma_type='No', amsgrad=False)),
         Adam_C2=(CGLikeAdam, dict(alpha_type='C2', beta_type='C2', gamma_type='No', amsgrad=False)),

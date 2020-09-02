@@ -21,35 +21,41 @@ marker_dict = dict(
 )
 
 x_label_dict = dict(
-    epoch='Epoch',
-    time='Elapsed time [s]',
+    epoch='epoch',
+    time='elapsed time [s]',
 )
 
 
-def plot(dataset: str, model: str, title='', result_path='./result/result.csv', save_extension='png') -> None:
+def plot(dataset: str, model: str, title='', result_path=None, save_extension='png') -> None:
     name_col = 'optimizer'
     param_col = 'optimizer_parameters'
     epoch_col = 'epoch'
     time_col = 'time'
 
     # load result
+    if result_path is None:
+        result_path = os.path.join('result', dataset, model, 'result.csv')
     data = read_csv(result_path, encoding='utf-8')
-    data.replace('Momentum_Exiting', 'Momentum_Existing', inplace=True)
+    # data.replace('Momentum_Exiting', 'Momentum_Existing', inplace=True)
     names = set(data[name_col])
     index_col = [name_col, epoch_col]
     data.set_index(index_col, inplace=True)
 
-    for metric, y_label in (('train_loss', 'training loss'),
-                            ('test_loss', 'test loss'),
-                            ('train_accuracy', 'training error rate'),
-                            ('test_accuracy', 'test error rate')):
-        for x_axis in ('epoch', 'time'):
-            _plot(data, optimizer_names=names, metric=metric, title=title, x_axis=x_axis, y_label=y_label,
-                  time_col=time_col, save_name=f'{dataset}_{model}_{metric}_{x_axis}.{save_extension}')
+    constants = {n for n in names if n.split('_')[-1][0] == 'C' or n.split('_')[-1] == 'Existing'}
+    diminishings = {n for n in names if n.split('_')[-1][0] == 'D'}
+    for type_label, optimizer_names in (('constant', constants), ('diminishing', diminishings)):
+        for metric, y_label in (('train_loss', 'training loss'),
+                                ('test_loss', 'test loss'),
+                                ('train_accuracy', 'training error rate'),
+                                ('test_accuracy', 'test error rate')):
+            for x_axis in ('epoch', ):  # ('epoch', 'time')
+                _plot(data, optimizer_names=optimizer_names, metric=metric, title=title, x_axis=x_axis, y_label=y_label,
+                      time_col=time_col, save_name=f'{dataset}_{model}_{type_label}_{metric}_{x_axis}.{save_extension}',
+                      fig_dir=os.path.join('./figure', dataset, model))
 
 
 def _plot(df: DataFrame, optimizer_names: Set[str], metric: str, time_col: str, title: str, y_label: str,
-          save_name: str, width=12., height=8., x_axis='epoch', fig_dir='./figure') -> None:
+          save_name: str, width=12., height=9., x_axis='epoch', fig_dir='./figure') -> None:
     plt.figure(figsize=(width, height))
     for i, name in enumerate(optimizer_names):
         if x_axis == 'epoch':
@@ -98,22 +104,39 @@ def get_linestyle(name: str, lr_type: str) -> str:
         return 'dashed'
 
 
-def arrange_legend(ax, names: Set[str], ex_suffix='Existing', pp_base_names=None) -> None:
-    if pp_base_names is None:
-        pp_base_names = ('Momentum', 'Adam', 'AMSGrad', 'CGLikeMomentum', 'CGLikeAdam', 'CGLikeAMSGrad')
+def arrange_legend(ax, names: Set[str], ex_suffix='Existing') -> None:
+    ex_base_names = (f'Momentum_{ex_suffix}', f'AdaGrad_{ex_suffix}', f'RMSProp_{ex_suffix}', f'Adam_{ex_suffix}',
+                     f'AMSGrad_{ex_suffix}')
+    pp_base_names = ('Momentum', 'CGLikeMomentum', 'Adam', 'CGLikeAdam', 'AMSGrad', 'CGLikeAMSGrad')
 
     handles, labels = ax.get_legend_handles_labels()
     handles_dict = dict(zip(labels, handles))
 
     # legends order
     existings = [n for n in names if ex_suffix in n]
+    existings = [n for n in ex_base_names if n in existings]
+
     proposeds = [n for n in names if ex_suffix not in n]
     proposeds = [sorted([n for n in proposeds if n.split('_')[0] == bn]) for bn in pp_base_names]
-    proposeds = [n for p in proposeds for n in p]
+    proposeds = [n for p in proposeds for n in p]  # flatten
     labels = [*proposeds, *existings]
     handles = [handles_dict[l] for l in labels]
-    ax.legend(handles=handles, labels=labels)
+    labels = [label_format(l) for l in labels]
+    ax.legend(handles=handles, labels=labels, bbox_to_anchor=(1.05, 1.0), loc='upper left')
+
+
+def label_format(label: str) -> str:
+    name, lr_type = label.split('_')
+    if lr_type == 'Existing':
+        return name
+    else:
+        if 'CGLike' in name:
+            name = name.replace('CGLike', '')
+            name = f'{name}CG'
+        return f'{name}-{lr_type}'
 
 
 if __name__ == '__main__':
-    plot(dataset='CIFAR-10', model='ResNet44')
+    from sys import argv
+    dataset, model = argv[1:3]
+    plot(dataset=dataset, model=model)

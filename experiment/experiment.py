@@ -64,7 +64,7 @@ class Experiment(metaclass=ABCMeta):
                 notify(str(result))
         return net, concat_dicts(results)
 
-    # @notify_error
+    @notify_error
     def execute(self, optimizers: OptimDict, result_dir='./result') -> None:
         model_dir = os.path.join(result_dir, self.dataset_name, self.model_name)
         train_loader, test_loader = self.prepare_data_loader(batch_size=self.batch_size, data_dir=self.data_dir)
@@ -77,7 +77,7 @@ class Experiment(metaclass=ABCMeta):
             result_to_csv(result, name=name, optimizer_kw=optimizer_kw,
                           result_dir=model_dir)
             notify(f'[{name}] Done.')
-        send_collected_csv(model_dir)
+            send_collected_csv(model_dir)
 
 
 

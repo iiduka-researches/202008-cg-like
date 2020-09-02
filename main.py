@@ -1,22 +1,9 @@
-from experiment.mnist import ExperimentMNIST
 from experiment.cifar10 import ExperimentCIFAR10
+from experiment.mnist import ExperimentMNIST
+from experiment.stl10 import ExperimentSTL10
 from torch.optim import SGD, Adagrad, RMSprop, Adam
 from optimizer.cg_like_momentum import CGLikeMomentum
 from optimizer.cg_like_adam import CGLikeAdam
-
-
-def mnist() -> None:
-    lr = 1e-3
-    optimizers = prepare_optimizers(lr)
-    e = ExperimentMNIST(dataset_name='mnist', max_epoch=1, batch_size=32)
-    e.execute(optimizers, './result')
-
-
-def cifar10() -> None:
-    lr = 1e-3
-    optimizers = prepare_optimizers(lr)
-    e = ExperimentCIFAR10(dataset_name='cifar10', max_epoch=200, batch_size=128, model_name='ResNet44')
-    e(optimizers)
 
 
 def prepare_optimizers(lr: float):
@@ -59,5 +46,26 @@ def prepare_optimizers(lr: float):
     )
 
 
+def mnist() -> None:
+    lr = 1e-3
+    optimizers = prepare_optimizers(lr)
+    e = ExperimentMNIST(dataset_name='mnist', max_epoch=1, batch_size=32)
+    e.execute(optimizers, './result')
+
+
+def cifar10() -> None:
+    lr = 1e-3
+    optimizers = prepare_optimizers(lr)
+    e = ExperimentCIFAR10(dataset_name='cifar10', max_epoch=200, batch_size=128, model_name='ResNet44')
+    e(optimizers)
+
+
+def stl10() -> None:
+    lr = 1e-3
+    optimizers = prepare_optimizers(lr)
+    e = ExperimentSTL10(dataset_name='stl10', max_epoch=200, batch_size=128, model_name='Inception3')
+    e(optimizers)
+
+
 if __name__ == '__main__':
-    cifar10()
+    stl10()

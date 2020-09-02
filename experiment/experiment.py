@@ -137,7 +137,7 @@ def send_csv(path: str, body: str, to=None) -> None:
 
 
 def send_collected_csv(result_dir: str) -> None:
-    paths = (os.path.join(result_dir, f) for f in os.listdir(result_dir) if f[-4:] == '.csv' and f[:6] != 'result')
+    paths = [os.path.join(result_dir, f) for f in os.listdir(result_dir) if f[-4:] == '.csv' and f[:6] != 'result']
     print(paths)
     df = concat([read_csv(path, encoding='utf-8') for path in paths])
     path = os.path.join(result_dir, 'result.csv')

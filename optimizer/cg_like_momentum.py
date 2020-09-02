@@ -14,20 +14,12 @@ class CGLikeMomentum(Optimizer):
     """
 
     def __init__(self, params, alpha_type=required, beta_type=required, gamma_type=required,
-                 dampening=0, weight_decay=0, nesterov=False) -> None:
+                 weight_decay=0) -> None:
         if weight_decay < 0.0:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
 
-        defaults = dict(alpha_type=alpha_type, beta_type=beta_type, gamma_type=gamma_type,
-                        dampening=dampening, weight_decay=weight_decay, nesterov=nesterov)
-        if nesterov and dampening != 0:
-            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
+        defaults = dict(alpha_type=alpha_type, beta_type=beta_type, gamma_type=gamma_type, weight_decay=weight_decay)
         super(CGLikeMomentum, self).__init__(params, defaults)
-
-    def __setstate__(self, state):
-        super(CGLikeMomentum, self).__setstate__(state)
-        for group in self.param_groups:
-            group.setdefault('nesterov', False)
 
     @torch.no_grad()
     def step(self, closure=None):
@@ -43,8 +35,6 @@ class CGLikeMomentum(Optimizer):
 
         for group in self.param_groups:
             weight_decay = group['weight_decay']
-            dampening = group['dampening']
-            nesterov = group['nesterov']
             alpha_fn = lr_fn_dict[group['alpha_type']]
             beta_fn = lr_fn_dict[group['beta_type']]
             gamma_fn = lr_fn_dict[group['gamma_type']]
@@ -57,11 +47,12 @@ class CGLikeMomentum(Optimizer):
                     d_p = d_p.add(p, alpha=weight_decay)
 
                 param_state = self.state[p]
-                if 'n' in param_state:
-                    param_state['n'] += 1
+                if 'step' in param_state:
+                    param_state['step'] += 1
                 else:
-                    param_state['n'] = 1
-                n = param_state['n']
+                    param_state['step'] = 1
+                n = param_state['step']
+
                 if 'd_buffer' in param_state:
                     d_buf = param_state['d_buffer']
                     gamma = gamma_fn(n)
@@ -69,16 +60,15 @@ class CGLikeMomentum(Optimizer):
                 param_state['d_buffer'] = torch.clone(d_p).detach()
 
                 beta = beta_fn(n)
+                bias_correction1 = 1 - beta ** param_state['step']
                 if 'momentum_buffer' not in param_state:
                     buf = param_state['momentum_buffer'] = torch.clone(d_p).detach()
                 else:
                     buf = param_state['momentum_buffer']
-                    buf.mul_(beta).add_(d_p, alpha=1 - dampening)
-                if nesterov:
-                    d_p = d_p.add(buf, alpha=beta)
-                else:
-                    d_p = buf
-                alpha = alpha_fn(n)
+                    buf.mul_(beta).add_(d_p, alpha=1 - beta)
+                d_p = buf
+
+                alpha = alpha_fn(n) / bias_correction1
                 p.add_(d_p, alpha=-alpha)
 
         return loss

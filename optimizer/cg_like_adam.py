@@ -109,10 +109,9 @@ class CGLikeAdam(Optimizer):
                     # Use the max. for normalizing running avg. of gradient
                     # denom = (max_exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(group['eps'])
                     denom = (max_exp_avg_sq.sqrt()).add_(group['eps'])
-                    alpha = alpha_fn(state['step'])
                 else:
                     denom = (exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(group['eps'])
-                    alpha = alpha_fn(state['step']) / bias_correction1
+                alpha = alpha_fn(state['step']) / bias_correction1
 
                 p.addcdiv_(exp_avg, denom, value=-alpha)
 

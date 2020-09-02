@@ -7,12 +7,13 @@ from optimizer.cg_like_adam import CGLikeAdam
 
 
 def prepare_optimizers(lr: float):
+    lr_type = {1e-1: 'C1', 1e-2: 'C2', 1e-3: 'C3', 1e-4: 'C4'}
     return dict(
         Momentum_Exiting=(SGD, dict(lr=lr, momentum=.9)),
         AdaGrad_Existing=(Adagrad, dict(lr=lr)),
         RMSProp_Existing=(RMSprop, dict(lr=lr)),
-        Adam_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=False)),
-        AMSGrad_Existing=(Adam, dict(lr=lr, betas=(.9, .999), amsgrad=True)),
+        Adam_Existing=(CGLikeAdam, dict(alpha_type=lr_type[lr], beta_type='C1', gamma_type='No', amsgrad=False)),
+        AMSGrad_Existing=(CGLikeAdam, dict(alpha_type=lr_type[lr], beta_type='C1', gamma_type='No', amsgrad=True)),
 
         Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
         Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
@@ -57,6 +58,9 @@ def cifar10() -> None:
     lr = 1e-3
     # optimizers = prepare_optimizers(lr)
     optimizers = dict(
+        Adam_Existing=(CGLikeAdam, dict(alpha_type='C3', beta_type='C1', gamma_type='No', amsgrad=False)),
+        AMSGrad_Existing=(CGLikeAdam, dict(alpha_type='C3', beta_type='C1', gamma_type='No', amsgrad=True)),
+
         Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
         Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
         Momentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='No')),

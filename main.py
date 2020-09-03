@@ -1,4 +1,5 @@
 from experiment.cifar10 import ExperimentCIFAR10
+from experiment.imdb import ExperimentIMDb
 from experiment.mnist import ExperimentMNIST
 from experiment.stl10 import ExperimentSTL10
 from torch.optim import SGD, Adagrad, RMSprop
@@ -47,11 +48,18 @@ def prepare_optimizers(lr: float):
     )
 
 
+def imdb() -> None:
+    lr = 1e-3
+    optimizers = prepare_optimizers(lr)
+    e = ExperimentIMDb(dataset_name='imdb', max_epoch=100, batch_size=32)
+    e.execute(optimizers)
+
+
 def mnist() -> None:
     lr = 1e-3
     optimizers = prepare_optimizers(lr)
-    e = ExperimentMNIST(dataset_name='mnist', max_epoch=1, batch_size=32)
-    e.execute(optimizers, './result')
+    e = ExperimentMNIST(dataset_name='mnist', max_epoch=10, batch_size=32)
+    e.execute(optimizers)
 
 
 def cifar10() -> None:
@@ -69,4 +77,12 @@ def stl10() -> None:
 
 
 if __name__ == '__main__':
-    cifar10()
+    from sys import argv
+
+    d = dict(
+        imdb=imdb,
+        mnist=mnist,
+        cifar10=cifar10,
+        stl10=stl10,
+    )
+    d[argv[1]]()

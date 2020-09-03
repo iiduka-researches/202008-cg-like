@@ -32,9 +32,9 @@ class ExperimentCIFAR10(Experiment):
         test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
         return train_loader, test_loader
 
-    def prepare_model(self, model_name: Optional[str]) -> Module:
+    def prepare_model(self, model_name: Optional[str], **kwargs) -> Module:
         if model_name in MODEL_DICT:
-            return MODEL_DICT[model_name]()
+            return MODEL_DICT[model_name](**kwargs)
         else:
             raise ValueError(f'Invalid model name: {model_name}')
 

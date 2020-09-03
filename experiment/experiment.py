@@ -34,11 +34,11 @@ class Experiment(metaclass=ABCMeta):
         self.execute(*args, **kwargs)
 
     @abstractmethod
-    def prepare_data_loader(self, batch_size: int, data_dir: str) -> Tuple[DataLoader, DataLoader]:
+    def prepare_data_loader(self, batch_size: int, data_dir: str) -> Tuple[DataLoader, DataLoader, dict]:
         raise NotImplementedError
 
     @abstractmethod
-    def prepare_model(self, model_name: Optional[str]) -> Module:
+    def prepare_model(self, model_name: Optional[str], **kwargs) -> Module:
         raise NotImplementedError
 
     @abstractmethod
@@ -66,10 +66,10 @@ class Experiment(metaclass=ABCMeta):
     @notify_error
     def execute(self, optimizers: OptimDict, result_dir='./result') -> None:
         model_dir = os.path.join(result_dir, self.dataset_name, self.model_name)
-        train_loader, test_loader = self.prepare_data_loader(batch_size=self.batch_size, data_dir=self.data_dir)
+        train_loader, test_loader, kw_model = self.prepare_data_loader(batch_size=self.batch_size, data_dir=self.data_dir)
         for name, (optimizer, optimizer_kw) in optimizers.items():
             fix_seed()
-            net = self.prepare_model(self.model_name)
+            net = self.prepare_model(self.model_name, **kw_model)
             net.to(self.device)
             _, result = self.train(net=net, optimizer=optimizer(net.parameters(), **optimizer_kw),
                                    train_loader=train_loader, test_loader=test_loader)

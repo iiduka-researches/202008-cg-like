@@ -1,7 +1,8 @@
 from experiment.cifar10 import ExperimentCIFAR10
 from experiment.mnist import ExperimentMNIST
 from experiment.stl10 import ExperimentSTL10
-from torch.optim import SGD, Adagrad, RMSprop, Adam
+from torch.optim import SGD, Adagrad, RMSprop
+from optimizer.adam import Adam
 from optimizer.cg_like_momentum import CGLikeMomentum
 from optimizer.cg_like_adam import CGLikeAdam
 
@@ -14,15 +15,15 @@ def prepare_optimizers(lr: float):
         Adam_Existing=(Adam, dict(lr=lr, amsgrad=False)),
         AMSGrad_Existing=(Adam, dict(lr=lr, amsgrad=True)),
 
-        Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
-        Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
-        Momentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='No')),
-        Momentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='No')),
-        CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
-        CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
-        CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
-        CGLikeMomentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D1')),
-        CGLikeMomentum_D2=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D2')),
+        # Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
+        # Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
+        # Momentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='No')),
+        # Momentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='No')),
+        # CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
+        # CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
+        # CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
+        # CGLikeMomentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D1')),
+        # CGLikeMomentum_D2=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D2')),
 
         Adam_C1=(CGLikeAdam, dict(alpha_type='C1', beta_type='C1', gamma_type='No', amsgrad=False)),
         Adam_C2=(CGLikeAdam, dict(alpha_type='C2', beta_type='C2', gamma_type='No', amsgrad=False)),
@@ -55,18 +56,7 @@ def mnist() -> None:
 
 def cifar10() -> None:
     lr = 1e-3
-    # optimizers = prepare_optimizers(lr)
-    optimizers = dict(
-        Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
-        Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
-        Momentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='No')),
-        Momentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='No')),
-        CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
-        CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
-        CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
-        CGLikeMomentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D1')),
-        CGLikeMomentum_D2=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D2')),
-    )
+    optimizers = prepare_optimizers(lr)
     e = ExperimentCIFAR10(dataset_name='cifar10', max_epoch=200, batch_size=128, model_name='ResNet44')
     e(optimizers)
 

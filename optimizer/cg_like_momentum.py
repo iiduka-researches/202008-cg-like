@@ -60,7 +60,6 @@ class CGLikeMomentum(Optimizer):
                 param_state['d_buffer'] = torch.clone(d_p).detach()
 
                 beta = beta_fn(n)
-                bias_correction1 = 1 - beta ** param_state['step']
                 if 'momentum_buffer' not in param_state:
                     buf = param_state['momentum_buffer'] = torch.clone(d_p).detach()
                 else:
@@ -68,7 +67,7 @@ class CGLikeMomentum(Optimizer):
                     buf.mul_(beta).add_(d_p, alpha=1 - beta)
                 d_p = buf
 
-                alpha = alpha_fn(n) / bias_correction1
+                alpha = alpha_fn(n)
                 p.add_(d_p, alpha=-alpha)
 
         return loss

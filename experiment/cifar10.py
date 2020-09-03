@@ -22,7 +22,7 @@ MODEL_DICT = dict(
 
 
 class ExperimentCIFAR10(Experiment):
-    def prepare_data_loader(self, batch_size: int, data_dir: str) -> Tuple[DataLoader, DataLoader]:
+    def prepare_data_loader(self, batch_size: int, data_dir: str) -> Tuple[DataLoader, DataLoader, dict]:
         root = os.path.join(data_dir, 'cifar10')
         os.makedirs(root, exist_ok=True)
 
@@ -30,7 +30,7 @@ class ExperimentCIFAR10(Experiment):
         test_data = CIFAR10(root, train=False, download=True, transform=ToTensor())
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
         test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
-        return train_loader, test_loader
+        return train_loader, test_loader, dict()
 
     def prepare_model(self, model_name: Optional[str], **kwargs) -> Module:
         if model_name in MODEL_DICT:

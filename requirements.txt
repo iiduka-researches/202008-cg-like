@@ -1,9 +1,9 @@
-torchtext
-matplotlib
-numpy
 google-api-python-client
 google-auth-oauthlilb
+matplotlib
+numpy
 pandas
 torch
+torchtext==0.4.0
 torchvision
 tqdm

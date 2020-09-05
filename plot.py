@@ -26,7 +26,7 @@ x_label_dict = dict(
 )
 
 
-def plot(dataset: str, model: str, title='', result_path=None, save_extension='png') -> None:
+def plot(dataset: str, model: str, title='', result_path=None, save_extension='pdf') -> None:
     name_col = 'optimizer'
     param_col = 'optimizer_parameters'
     epoch_col = 'epoch'
@@ -91,7 +91,7 @@ def _plot(df: DataFrame, optimizer_names: Set[str], metric: str, time_col: str, 
     plt.yscale('log')
 
     os.makedirs(fig_dir, exist_ok=True)
-    plt.savefig(os.path.join(fig_dir, save_name), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(fig_dir, save_name), dpi=300, bbox_inches='tight', pad_inches=.05)
     plt.close()
 
 

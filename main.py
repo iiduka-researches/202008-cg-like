@@ -50,8 +50,13 @@ def prepare_optimizers(lr: float):
 
 def imdb() -> None:
     lr = 1e-3
-    optimizers = prepare_optimizers(lr)
-    e = ExperimentIMDb(dataset_name='imdb', max_epoch=100, batch_size=32)
+    # optimizers = prepare_optimizers(lr)
+    optimizers = dict(
+        Adam_Test_1=(Adam, dict(lr=1e-2, amsgrad=False)),
+        Adam_Existing=(Adam, dict(lr=1e-3, amsgrad=False)),
+        Adam_Test_2=(Adam, dict(lr=1e-4, amsgrad=False)),
+    )
+    e = ExperimentIMDb(dataset_name='imdb', max_epoch=50, batch_size=32)
     e.execute(optimizers)
 
 

@@ -52,7 +52,7 @@ class ExperimentIMDb(Experiment):
             optimizer.step(closure=None)
             running_loss += loss.item()
             total += labels.size(0)
-            predicted = torch.where(outputs >= .5, torch.zeros_like(outputs), torch.ones_like(outputs))
+            predicted = torch.where(outputs <= .5, torch.zeros_like(outputs), torch.ones_like(outputs))
             correct += (predicted == labels).sum().item()
             i += 1
         return net, dict(train_loss=running_loss / i, train_accuracy=correct / total)
@@ -70,7 +70,7 @@ class ExperimentIMDb(Experiment):
                 outputs = net(inputs)
                 loss = criterion(outputs, labels)
                 running_loss += loss.item()
-                predicted = torch.where(outputs >= .5, torch.zeros_like(outputs), torch.ones_like(outputs))
+                predicted = torch.where(outputs <= .5, torch.zeros_like(outputs), torch.ones_like(outputs))
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
                 i += 1

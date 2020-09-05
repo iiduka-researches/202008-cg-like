@@ -13,7 +13,7 @@ def prepare_optimizers(lr: float):
         Momentum_Exiting=(SGD, dict(lr=lr, momentum=.9)),
         AdaGrad_Existing=(Adagrad, dict(lr=lr)),
         RMSProp_Existing=(RMSprop, dict(lr=lr)),
-        Adam_Existing=(Adam, dict(lr=lr, amsgrad=False)),
+        # Adam_Existing=(Adam, dict(lr=lr, amsgrad=False)),
         AMSGrad_Existing=(Adam, dict(lr=lr, amsgrad=True)),
 
         Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
@@ -51,7 +51,7 @@ def prepare_optimizers(lr: float):
 def imdb() -> None:
     lr = 1e-3
     optimizers = prepare_optimizers(lr)
-    e = ExperimentIMDb(dataset_name='imdb', max_epoch=50, batch_size=32)
+    e = ExperimentIMDb(dataset_name='imdb', max_epoch=100, batch_size=32)
     e.execute(optimizers)
 
 

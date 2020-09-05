@@ -16,15 +16,15 @@ def prepare_optimizers(lr: float):
         Adam_Existing=(Adam, dict(lr=lr, amsgrad=False)),
         AMSGrad_Existing=(Adam, dict(lr=lr, amsgrad=True)),
 
-        # Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
-        # Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
-        # Momentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='No')),
-        # Momentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='No')),
-        # CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
-        # CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
-        # CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
-        # CGLikeMomentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D1')),
-        # CGLikeMomentum_D2=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D2')),
+        Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
+        Momentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='No')),
+        Momentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='No')),
+        Momentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='No')),
+        CGLikeMomentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='C1')),
+        CGLikeMomentum_C2=(CGLikeMomentum, dict(alpha_type='C2', beta_type='C2', gamma_type='C2')),
+        CGLikeMomentum_C3=(CGLikeMomentum, dict(alpha_type='C3', beta_type='C3', gamma_type='C3')),
+        CGLikeMomentum_D1=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D1')),
+        CGLikeMomentum_D2=(CGLikeMomentum, dict(alpha_type='D1', beta_type='D1', gamma_type='D2')),
 
         Adam_C1=(CGLikeAdam, dict(alpha_type='C1', beta_type='C1', gamma_type='No', amsgrad=False)),
         Adam_C2=(CGLikeAdam, dict(alpha_type='C2', beta_type='C2', gamma_type='No', amsgrad=False)),
@@ -50,12 +50,7 @@ def prepare_optimizers(lr: float):
 
 def imdb() -> None:
     lr = 1e-3
-    # optimizers = prepare_optimizers(lr)
-    optimizers = dict(
-        Adam_Test_1=(Adam, dict(lr=1e-2, amsgrad=False)),
-        Adam_Existing=(Adam, dict(lr=1e-3, amsgrad=False)),
-        Adam_Test_2=(Adam, dict(lr=1e-4, amsgrad=False)),
-    )
+    optimizers = prepare_optimizers(lr)
     e = ExperimentIMDb(dataset_name='imdb', max_epoch=50, batch_size=32)
     e.execute(optimizers)
 

@@ -50,7 +50,8 @@ def prepare_optimizers(lr: float):
 
 def imdb() -> None:
     lr = 1e-3
-    optimizers = prepare_optimizers(lr)
+    # optimizers = prepare_optimizers(lr)
+    optimizers = dict(AMSGrad_Existing=(Adam, dict(lr=lr, amsgrad=True)))
     e = ExperimentIMDb(dataset_name='imdb', max_epoch=100, batch_size=32)
     e.execute(optimizers)
 
@@ -64,8 +65,7 @@ def mnist() -> None:
 
 def cifar10() -> None:
     lr = 1e-3
-    # optimizers = prepare_optimizers(lr)
-    optimizers = dict(AMSGrad_Existing=(Adam, dict(lr=lr, amsgrad=True)))
+    optimizers = prepare_optimizers(lr)
     e = ExperimentCIFAR10(dataset_name='cifar10', max_epoch=200, batch_size=128, model_name='ResNet44')
     e(optimizers)
 

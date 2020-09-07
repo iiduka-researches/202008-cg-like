@@ -48,7 +48,6 @@ class ExperimentIMDb(Experiment):
             optimizer.zero_grad()
             outputs = net(inputs)
             loss = criterion(outputs, labels)
-            print(i, loss)
             loss.backward()
             optimizer.step(closure=None)
             running_loss += loss.item()

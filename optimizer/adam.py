@@ -102,7 +102,7 @@ class Adam(Optimizer):
                     torch.max(max_exp_avg_sq, exp_avg_sq, out=max_exp_avg_sq)
                     # Use the max. for normalizing running avg. of gradient
                     # denom = (max_exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(group['eps'])
-                    denom = max_exp_avg_sq.sqrt()
+                    denom = max_exp_avg_sq.sqrt().add_(group['eps'])
                     step_size = group['lr']
                 else:
                     bias_correction1 = 1 - beta1 ** state['step']
@@ -113,3 +113,4 @@ class Adam(Optimizer):
                 p.addcdiv_(exp_avg, denom, value=-step_size)
 
         return loss
+

@@ -13,7 +13,7 @@ def prepare_optimizers(lr: float):
         Momentum_Exiting=(SGD, dict(lr=lr, momentum=.9)),
         AdaGrad_Existing=(Adagrad, dict(lr=lr)),
         RMSProp_Existing=(RMSprop, dict(lr=lr)),
-        # Adam_Existing=(Adam, dict(lr=lr, amsgrad=False)),
+        Adam_Existing=(Adam, dict(lr=lr, amsgrad=False)),
         AMSGrad_Existing=(Adam, dict(lr=lr, amsgrad=True)),
 
         Momentum_C1=(CGLikeMomentum, dict(alpha_type='C1', beta_type='C1', gamma_type='No')),
@@ -64,7 +64,8 @@ def mnist() -> None:
 
 def cifar10() -> None:
     lr = 1e-3
-    optimizers = prepare_optimizers(lr)
+    # optimizers = prepare_optimizers(lr)
+    optimizers = dict(AMSGrad_Existing=(Adam, dict(lr=lr, amsgrad=True)))
     e = ExperimentCIFAR10(dataset_name='cifar10', max_epoch=200, batch_size=128, model_name='ResNet44')
     e(optimizers)
 

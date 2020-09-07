@@ -106,7 +106,7 @@ class CGLikeAdam(Optimizer):
                     torch.max(max_exp_avg_sq, exp_avg_sq, out=max_exp_avg_sq)
                     # Use the max. for normalizing running avg. of gradient
                     # denom = (max_exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(group['eps'])
-                    denom = (max_exp_avg_sq.sqrt()).add_(group['eps'])
+                    denom = max_exp_avg_sq.sqrt().add_(group['eps'])
                     alpha = alpha_fn(state['step'])
                 else:
                     bias_correction1 = 1 - group['delta'] ** state['step']

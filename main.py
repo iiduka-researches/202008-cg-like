@@ -1,7 +1,5 @@
 from experiment.cifar10 import ExperimentCIFAR10
 from experiment.imdb import ExperimentIMDb
-from experiment.mnist import ExperimentMNIST
-from experiment.stl10 import ExperimentSTL10
 from torch.optim import SGD, Adagrad, RMSprop
 from optimizer.adam import Adam
 from optimizer.cg_like_momentum import CGLikeMomentum

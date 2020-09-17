@@ -36,7 +36,7 @@ def plot(dataset: str, model: str, title='', result_path=None, save_extension='p
     if result_path is None:
         result_path = os.path.join('result', dataset, model, 'result.csv')
     data = read_csv(result_path, encoding='utf-8')
-    # data.replace('Momentum_Exiting', 'Momentum_Existing', inplace=True)
+    data.replace('Momentum_Exiting', 'Momentum_Existing', inplace=True)
     names = set(data[name_col])
     index_col = [name_col, epoch_col]
     data.set_index(index_col, inplace=True)

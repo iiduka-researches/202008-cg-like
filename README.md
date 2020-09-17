@@ -1,28 +1,13 @@
 # 202008-cg-like
 
-
 ## Usage
-### Preparation
-#### Criteo dataset
-1. Please download dataset from [Kaggle Display Advertising Challenge Dataset](http://labs.criteo.com/2014/02/kaggle-display-advertising-challenge-dataset/)
-1. Please put train.txt under dataset/data/criteo/
-
-
-### Execution
 To conduct experiments, please execute the following: 
 ```shell script
-python main.py <dataset name> <model name>
+python main.py
 ```
 or 
 ```shell script
-pipenv run python main.py <dataset name> <model name>
-```
-
-### ISC
-To execute the command on the Ikuta Fast Scalar Computation (ISC) Server, please execute the following:  
-```shell script
-pipenv shell
-pip install --cache-dir <dir> torch==1.5.0+cu92 torchvision==0.6.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
+pipenv run python main.py
 ```
 
 ### Utils

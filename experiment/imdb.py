@@ -6,7 +6,6 @@ from torch.nn import Embedding, Linear, LSTM, Module, BCEWithLogitsLoss
 from torch.utils.data import DataLoader
 from torchtext.data import BucketIterator, Field, LabelField
 from torchtext.datasets import IMDB
-from torchtext.vocab import GloVe
 
 from optimizer.optimizer import Optimizer
 from .experiment import Experiment, ResultDict
@@ -22,7 +21,6 @@ class ExperimentIMDb(Experiment):
         train_data, test_data = IMDB.splits(root=root, text_field=text, label_field=label)
 
         # build the vocabulary
-        # text.build_vocab(train_data, vectors=GloVe(name='6B', dim=300))
         text.build_vocab(train_data, max_size=25000)
         label.build_vocab(train_data)
         vocab_size = len(text.vocab)
@@ -82,11 +80,11 @@ class Net(Module):
         super().__init__()
         self.emb = Embedding(in_dim, embedding_dim, padding_idx=0)
         self.lstm = LSTM(embedding_dim, hidden_size, num_layers, batch_first=True, bidirectional=True, dropout=dropout)
-        self.linear = Linear(hidden_size * num_layers, 1)
+        self.linear = Linear(hidden_size * 2, 1)
 
     def forward(self, x):
         x = self.emb(x)
-        x, _ = self.lstm(x)
-        x = x[:, -1, :]
+        _, (h, _) = self.lstm(x)
+        x = torch.cat([h[0], h[-1]], dim=1)
         x = self.linear(x)
         return x.squeeze()
